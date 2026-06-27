@@ -6,5 +6,6 @@ create table if not exists vastgoedkompas_submissions (
 
 create index if not exists vastgoedkompas_submissions_created_at_idx
 on vastgoedkompas_submissions (created_at desc);
+
 create index if not exists vastgoedkompas_submissions_type_idx
 on vastgoedkompas_submissions ((payload->>'type'));

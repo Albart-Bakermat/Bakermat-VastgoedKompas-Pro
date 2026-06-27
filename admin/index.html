@@ -1,0 +1,111 @@
+<!DOCTYPE html>
+<html lang="nl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Bakermat VastgoedKompas Dashboard</title>
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<style>
+:root{--navy:#071f3f;--green:#2f7d32;--border:#dfe8e3;--bg:#f3f6f4}
+body{font-family:Segoe UI,Arial,sans-serif;background:var(--bg);color:#12213a;margin:0;padding:24px}
+.wrap{max-width:1180px;margin:0 auto}
+h1,h2{color:var(--navy)}
+.card{background:white;border:1px solid var(--border);border-radius:18px;padding:18px;margin:14px 0;box-shadow:0 8px 22px rgba(0,0,0,.05)}
+.grid{display:grid;grid-template-columns:repeat(3,1fr);gap:14px}
+.metric{background:white;border:1px solid var(--border);border-radius:18px;padding:18px}
+.metric strong{font-size:34px;color:var(--green)}
+input,button{padding:12px;border-radius:10px;border:1px solid var(--border)}
+button{background:var(--navy);color:white;font-weight:800;cursor:pointer}
+table{width:100%;border-collapse:collapse;background:white;border-radius:14px;overflow:hidden}
+th,td{padding:10px;border-bottom:1px solid #edf0ef;text-align:left;vertical-align:top}
+th{background:var(--navy);color:white}
+pre{white-space:pre-wrap;background:#f6f8f7;padding:12px;border-radius:12px;max-height:320px;overflow:auto}
+a{color:var(--navy);font-weight:800}
+.chartbox{height:320px}
+@media(max-width:800px){.grid{grid-template-columns:1fr}}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <h1>Bakermat VastgoedKompas Dashboard</h1>
+  <div class="card">
+    <p>Vul de admin token in om resultaten op te halen.</p>
+    <input id="token" type="password" placeholder="Admin token">
+    <button onclick="loadData()">Dashboard laden</button>
+    <button onclick="exportCsv()">Export CSV</button>
+  </div>
+
+  <div id="metrics" class="grid"></div>
+  <div class="card">
+    <h2>Gemiddelde themascores</h2>
+    <div class="chartbox"><canvas id="themeChart"></canvas></div>
+  </div>
+  <div id="out"></div>
+</div>
+
+<script>
+let lastToken="";
+let chart=null;
+
+async function loadData(){
+  lastToken=document.getElementById('token').value;
+  const out=document.getElementById('out');
+  out.innerHTML='Laden...';
+
+  const [statsRes, dataRes] = await Promise.all([
+    fetch('/api/stats?token='+encodeURIComponent(lastToken)),
+    fetch('/api/submissions?token='+encodeURIComponent(lastToken))
+  ]);
+
+  const stats=await statsRes.json();
+  const data=await dataRes.json();
+
+  if(!statsRes.ok || !dataRes.ok){out.innerHTML='<div class="card">'+(stats.error||data.error||'Fout')+'</div>';return;}
+
+  document.getElementById('metrics').innerHTML =
+    '<div class="metric"><span>Leads</span><br><strong>'+esc(stats.aantalLeads)+'</strong></div>'+
+    '<div class="metric"><span>Resultaten</span><br><strong>'+esc(stats.aantalResultaten)+'</strong></div>'+
+    '<div class="metric"><span>Gem. score</span><br><strong>'+esc(stats.gemiddeldeScore)+'%</strong></div>';
+
+  renderChart(stats.themaGemiddelden||{});
+  renderTable(data.items||[]);
+}
+
+function renderChart(obj){
+  const labels=Object.keys(obj);
+  const values=Object.values(obj);
+  const ctx=document.getElementById('themeChart').getContext('2d');
+  if(chart) chart.destroy();
+  chart=new Chart(ctx,{type:'bar',data:{labels,datasets:[{data:values,backgroundColor:'#2f7d32',borderRadius:8}]},options:{maintainAspectRatio:false,scales:{y:{beginAtZero:true,max:100}},plugins:{legend:{display:false}}}});
+}
+
+function renderTable(items){
+  const out=document.getElementById('out');
+  if(!items.length){out.innerHTML='<div class="card">Geen inzendingen gevonden.</div>';return;}
+  let html='<div class="card"><h2>Inzendingen</h2><table><tr><th>Datum</th><th>Type</th><th>Naam</th><th>Organisatie</th><th>E-mail</th><th>Score</th><th>Details</th></tr>';
+  items.forEach(item=>{
+    const p=item.payload||{};
+    html+='<tr>';
+    html+='<td>'+esc(item.created_at||p.created_at||p.datum||'')+'</td>';
+    html+='<td>'+esc(p.type||'')+'</td>';
+    html+='<td>'+esc(p.naam||'')+'</td>';
+    html+='<td>'+esc(p.organisatie||'')+'</td>';
+    html+='<td>'+esc(p.email||'')+'</td>';
+    html+='<td>'+esc(p.score ? p.score+'%' : '')+'</td>';
+    html+='<td><details><summary>Open</summary><pre>'+esc(JSON.stringify(p,null,2))+'</pre></details></td>';
+    html+='</tr>';
+  });
+  html+='</table></div>';
+  out.innerHTML=html;
+}
+
+function exportCsv(){
+  const token=document.getElementById('token').value || lastToken;
+  if(!token){alert('Vul eerst de admin token in.');return;}
+  window.location.href='/api/export.csv?token='+encodeURIComponent(token);
+}
+
+function esc(v){return String(v??'').replace(/[&<>"']/g,s=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#039;'}[s]));}
+</script>
+</body>
+</html>

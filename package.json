@@ -1,8 +1,8 @@
 {
-  "name": "bakermat-vastgoedkompas-professional",
-  "version": "3.0.0",
+  "name": "bakermat-vastgoedkompas-pro",
+  "version": "2.0.0",
   "private": true,
-  "description": "Professionele Bakermat VastgoedKompas webapp voor GitHub en Vercel.",
+  "description": "Professionele Bakermat VastgoedKompas webapp met automatische e-mailrapportage, PDF-bijlage, optionele database, dashboard, CSV-export en AI-rapportage.",
   "type": "module",
   "scripts": {
     "dev": "vercel dev",
