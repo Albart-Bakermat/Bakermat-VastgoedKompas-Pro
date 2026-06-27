@@ -1,10 +1,10 @@
-# Bakermat VastgoedKompas Pro
+# Bakermat VastgoedKompas Professional
 
-Complete GitHub/Vercel implementatie voor het Bakermat VastgoedKompas.
+Volledige GitHub/Vercel implementatie van het Bakermat VastgoedKompas.
 
-## Inbegrepen
+## Wat zit erin
 
-- Landingspagina en scan in Bakermat-huisstijl
+- Professionele scanpagina in Bakermat-huisstijl
 - 9 hoofdthema's
 - 135 vragen
 - Scoreberekening
@@ -17,31 +17,25 @@ Complete GitHub/Vercel implementatie voor het Bakermat VastgoedKompas.
 - Optionele Supabase opslag
 - Dashboard via `/admin`
 - CSV-export
+- Health check via `/api/health`
 - Voorbereiding voor AI-rapportage
 
-## Bestanden
+## Upload naar GitHub
 
-```text
-index.html
-api/_utils.js
-api/_pdf.js
-api/lead.js
-api/result.js
-api/submissions.js
-api/stats.js
-api/export.csv.js
-api/ai-report.js
-admin/index.html
-package.json
-vercel.json
-supabase.sql
-.env.example
-README.md
-```
+1. Pak de ZIP uit.
+2. Verwijder bij voorkeur de oude bestanden uit je bestaande repository.
+3. Upload alle bestanden en mappen uit deze ZIP naar de root van de repository.
+4. Commit de wijzigingen.
+
+Belangrijk: de map `api` en de map `admin` moeten in de root staan.
+
+## Vercel
+
+Na upload naar GitHub zal Vercel automatisch opnieuw deployen. Zo niet, klik in Vercel op `Redeploy`.
 
 ## Vercel environment variables
 
-Zet minimaal deze variabelen in Vercel:
+Minimaal nodig:
 
 ```text
 RESEND_API_KEY=re_xxxxxxxxxxxxxxxxx
@@ -60,17 +54,22 @@ OPENAI_API_KEY=sk-xxxxx
 OPENAI_MODEL=gpt-4o-mini
 ```
 
-## Deploy
+## Controle
 
-1. Pak deze ZIP uit.
-2. Upload alle bestanden naar GitHub in de root van de repository.
-3. Koppel de repository opnieuw aan Vercel, of push naar je bestaande repository.
-4. Voeg de environment variables toe in Vercel.
-5. Klik in Vercel op Redeploy.
+Open na deploy:
 
-## Belangrijk
+```text
+/api/health
+```
 
-Na het toevoegen of wijzigen van environment variables in Vercel moet je opnieuw deployen.
+Als alles goed staat, zie je:
+
+```json
+{
+  "ok": true,
+  "emailConfigured": true
+}
+```
 
 ## Dashboard
 
@@ -88,8 +87,23 @@ CSV-export:
 
 ## Supabase
 
-Voer de inhoud van `supabase.sql` uit in Supabase SQL Editor.
+1. Maak een Supabase-project.
+2. Open SQL Editor.
+3. Voer de inhoud van `supabase.sql` uit.
+4. Voeg `SUPABASE_URL`, `SUPABASE_SERVICE_ROLE_KEY` en `ADMIN_TOKEN` toe in Vercel.
+5. Redeploy.
 
 ## Resend
 
 Zorg dat `mailer.bakermatvm.nl` verified is in Resend.
+
+## Testflow
+
+1. Open de Vercel-url.
+2. Vul naam, organisatie en e-mailadres in.
+3. Start het Kompas.
+4. Controleer of Bakermat een leadmail ontvangt.
+5. Vul de scan in.
+6. Bereken de score.
+7. Controleer of Bakermat een resultaatmail met PDF ontvangt.
+8. Controleer eventueel of de bezoeker een kopie ontvangt.

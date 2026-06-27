@@ -1,8 +1,8 @@
 {
-  "name": "bakermat-vastgoedkompas-pro",
-  "version": "2.0.0",
+  "name": "bakermat-vastgoedkompas-professional",
+  "version": "3.0.0",
   "private": true,
-  "description": "Bakermat VastgoedKompas Pro webapp voor GitHub en Vercel.",
+  "description": "Professionele Bakermat VastgoedKompas webapp voor GitHub en Vercel.",
   "type": "module",
   "scripts": {
     "dev": "vercel dev",
