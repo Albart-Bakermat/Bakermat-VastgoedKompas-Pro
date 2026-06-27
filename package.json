@@ -9,7 +9,7 @@
     "start": "vercel dev"
   },
   "dependencies": {
+    "@vercel/analytics": "^2.0.1",
     "pdf-lib": "^1.17.1"
-  },
-  "devDependencies": {}
+  }
 }
